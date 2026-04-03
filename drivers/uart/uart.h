@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 
+
+//大部分地址、寄存器信息都来自于qemu riscv的virt设备信息
 class UART final {
 public:
     explicit constexpr UART(uintptr_t base) noexcept
@@ -19,6 +21,7 @@ public:
     void put_dec(uint64_t value) const noexcept;
 
 private:
+    //这里的基地址偏移都是参考了UART16550的信息
     enum class Reg : uintptr_t {
         RBR_THR_DLL = 0x00,
         IER_DLM = 0x01,

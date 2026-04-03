@@ -6,6 +6,7 @@
 #include <platform/memmap.h>
 #include <stdlib.h>
 
+//这里的寄存器信息也是参考了UART16550的信息
 namespace {
     constexpr uint8_t kLcr8n1 = 0x03;
     constexpr uint8_t kFcrEnableFifo = 0x01;
