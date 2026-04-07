@@ -91,3 +91,8 @@ add_custom_command(TARGET kernel.elf POST_BUILD
     COMMAND ${CMAKE_SIZE} $<TARGET_FILE:kernel.elf>
     COMMENT "Generating disassembly and size report"
 )
+
+option(BUILD_HOST_TESTS "Build host-side unit tests" OFF)
+if(BUILD_HOST_TESTS)
+    add_subdirectory(tests)
+endif()

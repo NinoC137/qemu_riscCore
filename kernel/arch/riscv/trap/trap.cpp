@@ -1,6 +1,7 @@
 #include <trap.h>
 
 #include <drivers/uart/uart.h>
+#include <kernel/arch/riscv/trap/trap_logic.h>
 #include <platform/riscv.h>
 
 extern const UART g_uart0;
@@ -71,9 +72,14 @@ extern "C" void trap_handle(trap::TrapFrame* tf) {
     g_uart0.putc('\n');
 
     if(code == static_cast<uintptr_t>(riscv::ExceptionCode::Breakpoint)){
-        //先只测试固定32位ebreak
-        tf->mepc += 4;
+        trap::handle_breakpoint(*tf);
         g_uart0.puts("resume after breakpoint\n");
+        return;
+    }
+
+    if(code == static_cast<uintptr_t>(riscv::ExceptionCode::EcallFromMMode)){
+        trap::handle_ecall_mmode(*tf, 0);
+        g_uart0.puts("catch Ecall from M-mode\n");
         return;
     }
 
