@@ -31,14 +31,23 @@ extern "C" void kmain(void) {
     trap::init();
     g_uart0.puts("trap installed\n");
 
-    g_uart0.puts("before ebreak\n");
-    asm volatile(".4byte 0x00100073");
-    g_uart0.puts("after ebreak\n");
+    // g_uart0.puts("before ebreak\n");
+    // asm volatile(".4byte 0x00100073");
+    // g_uart0.puts("after ebreak\n");
 
     g_uart0.puts("before ecall\n");
 
-    const char msg[] = "hello from syscall\n";
+    const char msg[] = "System Write: hello from syscall\n";
     long ret = do_syscall_write(1, msg, sizeof(msg) - 1);
+
+    register long a0 asm("a0") = 137;
+    register long a7 asm("a7") = 2;
+
+    asm volatile(
+        "ecall"
+            : "+r"(a0)
+            : "r"(a7)
+            : "memory");
 
     g_uart0.puts("after ecall\n");
 
