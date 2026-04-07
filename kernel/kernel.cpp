@@ -19,6 +19,24 @@ extern "C" void kmain(void) {
     asm volatile(".4byte 0x00100073");
     g_uart0.puts("after ebreak\n");
 
+    g_uart0.puts("before ecall\n");
+    long arg0, arg1, arg2;
+    arg0 = 0;
+    arg1 = 0;
+    arg2 = 0;
+    register long a0 asm("a0") = arg0;
+    register long a1 asm("a1") = arg1;
+    register long a2 asm("a2") = arg2;
+    register long a7 asm("a7") = 1;
+
+    asm volatile(
+        "ecall"
+        : "+r"(a0)
+        : "r"(a1), "r"(a2), "r"(a7)
+        : "memory");
+
+    g_uart0.puts("after ecall\n");
+
     for (;;) {
         asm volatile("wfi");
     }

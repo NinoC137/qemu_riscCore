@@ -23,6 +23,34 @@ namespace trap
 
     constexpr uintptr_t kInsnBytes32 = 4;
 
+    enum class SyscallNumber : uintptr_t {
+        Write = 1,
+        Exit = 2,
+        Yield = 3,
+    };
+
+    static uintptr_t syscall_dispatch(trap::TrapFrame* tf){
+        g_uart0.puts("start syscall dispatch\n");
+        g_uart0.puts("get tf a7: ");
+        g_uart0.put_dec(tf->a7);    g_uart0.putc('\n');
+        
+        switch (static_cast<SyscallNumber>(tf->a7))
+        {
+        case SyscallNumber::Write:
+            g_uart0.puts("call system write\n");
+            return static_cast<uintptr_t>(-1);
+        case SyscallNumber::Exit:
+            g_uart0.puts("call system exit\n");
+            return static_cast<uintptr_t>(-1);
+        case SyscallNumber::Yield:
+            g_uart0.puts("call system Yield\n");
+            return static_cast<uintptr_t>(-1);
+
+        default:
+            return static_cast<uintptr_t>(-1);
+        }
+    }
+
     inline uintptr_t syscall_number(const TrapFrame &tf) noexcept
     {
         return tf.a7;
@@ -58,6 +86,8 @@ namespace trap
     {
         tf.mepc += kInsnBytes32;
         tf.a0 = syscall_ret;
+        syscall_dispatch(&tf);
+        // g_uart0.puts("\nin ecall handle.\n");
         return {false, static_cast<uintptr_t>(riscv::ExceptionCode::EcallFromMMode), HandleResult::Resume};
     }
 
