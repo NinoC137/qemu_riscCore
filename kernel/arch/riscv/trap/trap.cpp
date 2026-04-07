@@ -78,9 +78,14 @@ extern "C" void trap_handle(trap::TrapFrame* tf) {
     }
 
     if(code == static_cast<uintptr_t>(riscv::ExceptionCode::EcallFromMMode)){
-        trap::handle_ecall_mmode(*tf, 0);
-        g_uart0.puts("catch Ecall from M-mode\n");
+        trap::handle_ecall_mmode(*tf);
+        // g_uart0.puts("catch Ecall from M-mode\n");
         return;
+    }
+
+    if(code == static_cast<uintptr_t>(riscv::ExceptionCode::IllegalInstruction)){
+        
+        g_uart0.puts("Excpetion: Illegal instruction\n");
     }
 
     for(;;){

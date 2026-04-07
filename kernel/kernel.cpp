@@ -2,6 +2,22 @@
 #include <drivers/uart/uart.h>
 #include <kernel/arch/riscv/trap/trap.h>
 
+static inline long do_syscall_write(long fd, const char* buf, long len)
+{
+    register long a0 asm("a0") = fd;
+    register long a1 asm("a1") = reinterpret_cast<long>(buf);
+    register long a2 asm("a2") = len;
+    register long a7 asm("a7") = 1;
+
+    asm volatile(
+        "ecall"
+        : "+r"(a0)
+        : "r"(a1), "r"(a2), "r"(a7)
+        : "memory");
+
+    return a0;
+}
+
 extern "C" void kmain(void) {
     g_uart0.init();
 
@@ -20,20 +36,9 @@ extern "C" void kmain(void) {
     g_uart0.puts("after ebreak\n");
 
     g_uart0.puts("before ecall\n");
-    long arg0, arg1, arg2;
-    arg0 = 0;
-    arg1 = 0;
-    arg2 = 0;
-    register long a0 asm("a0") = arg0;
-    register long a1 asm("a1") = arg1;
-    register long a2 asm("a2") = arg2;
-    register long a7 asm("a7") = 1;
 
-    asm volatile(
-        "ecall"
-        : "+r"(a0)
-        : "r"(a1), "r"(a2), "r"(a7)
-        : "memory");
+    const char msg[] = "hello from syscall\n";
+    long ret = do_syscall_write(1, msg, sizeof(msg) - 1);
 
     g_uart0.puts("after ecall\n");
 

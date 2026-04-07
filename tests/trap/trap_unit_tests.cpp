@@ -54,13 +54,16 @@ namespace
     void test_handle_ecall_advances_mepc_and_sets_return_value()
     {
         auto tf = make_base_tf();
+        static const char msg[] = "abc";
         tf.mepc = 0x3000;
         tf.a0 = 1;
-        tf.a7 = 42;
+        tf.a1 = reinterpret_cast<uintptr_t>(msg);
+        tf.a2 = 3;
+        tf.a7 = 1;
 
-        auto summary = trap::handle_ecall_mmode(tf, 1234);
+        auto summary = trap::handle_ecall_mmode(tf);
         assert(tf.mepc == 0x3004);
-        assert(tf.a0 == 1234);
+        assert(tf.a0 == 3);
         assert(summary.result == trap::HandleResult::Resume);
         assert(summary.code == static_cast<uintptr_t>(riscv::ExceptionCode::EcallFromMMode));
     }

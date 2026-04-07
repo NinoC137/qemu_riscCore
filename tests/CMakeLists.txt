@@ -7,6 +7,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(trap_unit_tests
     trap/trap_unit_tests.cpp
+    host_stubs/uart_stub.cpp
+    ../kernel/arch/riscv/syscall/syscall.cpp
+    ../kernel/arch/riscv/syscall/sys_write.cpp
+    ../kernel/arch/riscv/syscall/sys_exit.cpp
+    ../kernel/arch/riscv/syscall/sys_yield.cpp
 )
 
 target_include_directories(trap_unit_tests PRIVATE

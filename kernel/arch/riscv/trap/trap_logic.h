@@ -2,6 +2,7 @@
 #define KERNEL_ARCH_RISCV_TRAP_TRAP_LOGIC_H
 
 #include <stdint.h>
+#include <kernel/arch/riscv/syscall/syscall.h>
 #include <kernel/arch/riscv/trap/trap.h>
 #include <platform/riscv.h>
 
@@ -22,34 +23,6 @@ namespace trap
     };
 
     constexpr uintptr_t kInsnBytes32 = 4;
-
-    enum class SyscallNumber : uintptr_t {
-        Write = 1,
-        Exit = 2,
-        Yield = 3,
-    };
-
-    static uintptr_t syscall_dispatch(trap::TrapFrame* tf){
-        g_uart0.puts("start syscall dispatch\n");
-        g_uart0.puts("get tf a7: ");
-        g_uart0.put_dec(tf->a7);    g_uart0.putc('\n');
-        
-        switch (static_cast<SyscallNumber>(tf->a7))
-        {
-        case SyscallNumber::Write:
-            g_uart0.puts("call system write\n");
-            return static_cast<uintptr_t>(-1);
-        case SyscallNumber::Exit:
-            g_uart0.puts("call system exit\n");
-            return static_cast<uintptr_t>(-1);
-        case SyscallNumber::Yield:
-            g_uart0.puts("call system Yield\n");
-            return static_cast<uintptr_t>(-1);
-
-        default:
-            return static_cast<uintptr_t>(-1);
-        }
-    }
 
     inline uintptr_t syscall_number(const TrapFrame &tf) noexcept
     {
@@ -82,13 +55,18 @@ namespace trap
         return {false, static_cast<uintptr_t>(riscv::ExceptionCode::Breakpoint), HandleResult::Resume};
     }
 
-    inline HandleSummary handle_ecall_mmode(TrapFrame &tf, uintptr_t syscall_ret) noexcept
+    inline HandleSummary handle_ecall_mmode(TrapFrame &tf) noexcept
+    {
+        const uintptr_t ret = syscall::dispatch(tf);
+        tf.a0 = ret;
+        tf.mepc += kInsnBytes32;
+        return {false, static_cast<uintptr_t>(riscv::ExceptionCode::EcallFromMMode), HandleResult::Resume};
+    }
+
+    inline HandleSummary handle_illegalinstruction(TrapFrame &tf) noexcept
     {
         tf.mepc += kInsnBytes32;
-        tf.a0 = syscall_ret;
-        syscall_dispatch(&tf);
-        // g_uart0.puts("\nin ecall handle.\n");
-        return {false, static_cast<uintptr_t>(riscv::ExceptionCode::EcallFromMMode), HandleResult::Resume};
+        return {false, static_cast<uintptr_t>(riscv::ExceptionCode::IllegalInstruction), HandleResult::Resume};
     }
 
     inline HandleSummary classify_trap(const TrapFrame &tf) noexcept
