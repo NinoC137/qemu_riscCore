@@ -1,6 +1,9 @@
 #include <stdint.h>
-#include <drivers/uart/uart.h>
 #include <kernel/arch/riscv/trap/trap.h>
+
+#include <platform/riscv.h>
+#include <platform/qemu/devices/timer/clint_timer.h>
+#include <drivers/uart/uart.h>
 
 static inline long do_syscall_write(long fd, const char* buf, long len)
 {
@@ -43,19 +46,28 @@ extern "C" void kmain(void) {
 
     //trap tests
     trap::init();
+
+    //init global interrupt
+    riscv::set_mie_bits(1ull << 7); // MTIE
+    riscv::set_mstatus_bits(1ull << 3); // MIE
+
     g_uart0.puts("trap installed\n");
+
+    ClintTimer::schedule_after(10000000ULL);
+    
 
     // g_uart0.puts("before ebreak\n");
     // asm volatile(".4byte 0x00100073");
     // g_uart0.puts("after ebreak\n");
 
-    g_uart0.puts("before ecall\n");
+    // g_uart0.puts("before ecall\n");
 
-    const char msg[] = "System Write: hello from syscall\n";
-    long ret = do_syscall_write(1, msg, sizeof(msg) - 1);
+    // const char msg[] = "System Write: hello from syscall\n";
+    // long ret = do_syscall_write(1, msg, sizeof(msg) - 1);
 
-    g_uart0.puts("illegal instruction test\n");
-    asm volatile(".word 0xffffffff");
+    // g_uart0.puts("illegal instruction test\n");
+    // asm volatile(".word 0xffffffff");
+
 
     for (;;) {
         asm volatile("wfi");

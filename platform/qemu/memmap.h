@@ -18,6 +18,9 @@ namespace platform::memmap {
     inline constexpr MemoryRegion kUart0 = {0x10000000UL, 0x100UL};
 
     inline constexpr MemoryRegion kClint = {0x02000000UL, 0x10000UL};
+    
+    inline constexpr MemoryRegion CLINT_MTIMECMP = {kClint.base + 0x4000, 1}; // hart0
+    inline constexpr MemoryRegion CLINT_MTIME = {kClint.base + 0xBFF8, 1};
 
     inline constexpr MemoryRegion kPlic = {0x0C000000UL, 0x4000000UL};
 }

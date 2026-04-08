@@ -1,6 +1,7 @@
 #include <trap.h>
 
 #include <drivers/uart/uart.h>
+#include <platform/qemu/devices/timer/clint_timer.h>
 #include <kernel/arch/riscv/trap/trap_logic.h>
 #include <platform/riscv.h>
 
@@ -49,19 +50,26 @@ extern "C" void trap_handle(trap::TrapFrame* tf) {
     const bool is_interrupt = riscv::mcause_is_interrupt(tf->mcause);
     const uintptr_t code = riscv::mcause_code(tf->mcause);
 
-    g_uart0.puts("\n=== trap ===\n");
-    g_uart0.puts("mcause = "); g_uart0.put_hex(tf->mcause); g_uart0.putc('\n');
-    g_uart0.puts("mepc = "); g_uart0.put_hex(tf->mepc); g_uart0.putc('\n');
-    g_uart0.puts("mtval = "); g_uart0.put_hex(tf->mtval); g_uart0.putc('\n');
-    g_uart0.puts("mstatus = "); g_uart0.put_hex(tf->mstatus); g_uart0.putc('\n');
-    g_uart0.puts("hart = "); g_uart0.put_dec(tf->mhartid); g_uart0.putc('\n');
+    // g_uart0.puts("\n=== trap ===\n");
+    // g_uart0.puts("mcause = "); g_uart0.put_hex(tf->mcause); g_uart0.putc('\n');
+    // g_uart0.puts("mepc = "); g_uart0.put_hex(tf->mepc); g_uart0.putc('\n');
+    // g_uart0.puts("mtval = "); g_uart0.put_hex(tf->mtval); g_uart0.putc('\n');
+    // g_uart0.puts("mstatus = "); g_uart0.put_hex(tf->mstatus); g_uart0.putc('\n');
+    // g_uart0.puts("hart = "); g_uart0.put_dec(tf->mhartid); g_uart0.putc('\n');
 
     if (is_interrupt) {
         g_uart0.puts("type = interrupt: ");
         g_uart0.puts(trap::interrupt_name(code));
         g_uart0.putc('\n');
 
-        // timer 以后在这里接
+
+        if(code == static_cast<uintptr_t>(riscv::InterruptCode::MachineTimer)){
+            g_uart0.puts("catch a timer interrupt\n");
+            g_uart0.puts("current timer count: "); g_uart0.put_dec(ClintTimer::read_mtime()); g_uart0.putc('\n');
+            ClintTimer::schedule_after(10000000ULL);
+            return;
+        }
+
         for (;;) {
             asm volatile("wfi");
         }

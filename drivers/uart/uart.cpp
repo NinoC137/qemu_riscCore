@@ -3,7 +3,7 @@
 //
 
 #include "uart.h"
-#include <platform/memmap.h>
+#include <platform/qemu/memmap.h>
 #include <stdlib.h>
 
 //这里的寄存器信息也是参考了UART16550的信息
