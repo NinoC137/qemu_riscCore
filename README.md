@@ -1,149 +1,124 @@
 # qemu-riscv-embedded
 
-一个面向 RV64 的 QEMU RISC-V 裸机 / OS 内核实验工程。
+A QEMU-based RV64 bare-metal / embedded OS kernel playground. The project is used to incrementally build a small RISC-V kernel stack on top of the `virt` machine in QEMU, with an emphasis on bring-up, observability, trap/syscall infrastructure, and later evolution toward memory management, scheduling, and user mode support.
 
-目标不是一次性堆全功能，而是按“可启动 → 可观测 → 可进入内核异常路径 → 可形成最小 syscall 闭环 → 再逐步扩展内存管理、调度、用户态”的顺序，把系统从最小内核稳步推进到可演进的嵌入式 OS 平台。
+## What this project does
 
-## 项目目标
+This repository targets a staged RISC-V kernel development workflow:
 
-项目长期方向包括：
+- bring up a bootable RV64 kernel on QEMU
+- provide basic UART-based observability
+- build a minimal trap / exception handling path
+- establish a small syscall path for kernel-user boundary experiments
+- leave room for future paging, task scheduling, drivers, and multi-domain support
 
-- 基于 QEMU 的 RISC-V 内核实验平台
-- 可扩展的外设与平台抽象
-- 设备树 / 引导配置驱动的启动方式
-- 分页式内存管理
-- trap / interrupt / syscall 基础设施
-- 任务调度与进程模型
-- 后续多核与安全域扩展能力
+It is currently a kernel experimentation project, not a full operating system distribution.
 
-当前仍以 **单核、最小闭环、可调试性优先** 为主，不追求一次性做大而全。
+## Requirements
 
-## 当前进展
+Recommended host environment:
 
-目前已经完成的主线能力：
+- macOS or Linux
+- CMake 3.20+
+- Ninja
+- RISC-V GNU embedded toolchain (`riscv64-unknown-elf-*`)
+- QEMU with `qemu-system-riscv64`
 
-- 最小启动链路打通：`entry.S -> kmain`
-- 自定义 linker script 可用
-- QEMU 可稳定启动并输出串口日志
-- 平台常量与链接符号已初步抽离
-- 已建立最小 trap 捕获路径
-- 已接入 `ecall` / syscall 基础处理流程
-- 已实现最小 `sys_write` 调用路径
-- 已加入简单 `sys_exit` 调用验证
-- 构建流程已基本稳定，支持持续迭代
-- 已补充部分面向 trap / syscall 的主机侧单元测试
+On the current macOS setup, the toolchain path is expected to be:
 
-这说明项目已经不再只是 bring-up demo，而是进入了 **内核基础设施逐步成型阶段**。
+- `/opt/homebrew/opt/riscv-gnu-toolchain/bin`
 
-## 当前项目特征
+The repository already includes a CMake toolchain file:
 
-这个仓库目前有几个明确特点：
+- `cmake/riscv64-unknown-elf.cmake`
 
-- **先闭环，后扩展**：优先把一条链路做通，而不是先堆完整抽象
-- **先可观测，后复杂化**：trap、日志、测试优先于复杂机制
-- **先单核，后 SMP**：先把单核内核骨架做稳
-- **先最小 syscall，后用户态体系**：先证明内核/用户边界能走通
-- **C++ 主要用于组织代码**：避免过早依赖复杂运行时能力
+## Build
 
-## 目录结构
+From the project root:
 
-当前顶层目录大致分工如下：
+```sh
+cmake -S . -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/riscv64-unknown-elf.cmake
 
-- `boot/`：启动入口与早期汇编
-- `kernel/`：当前内核主代码
-- `platform/`：平台相关常量、寄存器/符号声明
-- `drivers/`：后续 UART / timer / interrupt 等驱动层扩展位置
-- `user/`：后续用户态程序与最小运行时
-- `secure/`：后续安全域 / RTOS 预留
-- `tests/`：主机侧或后续系统级测试
-- `scripts/`：构建、链接、辅助脚本
-- `docs/`：设计说明、开发路线、专题文档
-- `tools/`：调试或辅助工具
-- `configs/`：配置预留
-- `build/`：构建输出目录
+cmake --build build
+```
 
-## 已有文档
-
-仓库中已经包含一些用于后续扩展的文档：
-
-- `开发手册.md`：当前阶段判断与近期推荐开发顺序
-- `docs/代码架构设计.md`：整体模块分层与目录演进建议
-- `docs/地址来源与寄存器参考.md`：平台地址与寄存器参考
-- `docs/从 ebreak 到最小 OS 闭环开发清单.md`：从异常路径走向最小 OS 闭环的路线
-
-如果你要继续推进项目，建议优先结合这些文档一起读。
-
-## 构建
-
-在项目根目录执行：
-
-    make clean && make
-
-或按项目脚本方式构建：
-
-    ./scripts/build.sh
-
-常见输出包括：
+Expected output artifacts include:
 
 - `build/kernel.elf`
 - `build/kernel.map`
 - `build/kernel.disasm`
 
-## 当前阶段判断
+## Run
 
-从提交历史和现有代码状态看，项目大致处于：
+Run the generated kernel with QEMU:
 
-**最小启动完成 → trap / syscall 基础设施已起步 → 正准备向更完整内核骨架扩展**
+```sh
+qemu-system-riscv64 \
+  -machine virt \
+  -bios none \
+  -kernel build/kernel.elf
+```
 
-也就是说，最值得继续稳固的不是“再多加几个零散功能”，而是把以下几类核心机制做扎实：
+If you want serial output directly in the terminal, use a no-graphics launch form such as:
 
-- trap 分发与上下文保存恢复
-- timer interrupt
-- 更规范的 syscall 框架
-- 页表与内存管理骨架
-- 最小任务/线程切换框架
+```sh
+qemu-system-riscv64 \
+  -machine virt \
+  -bios none \
+  -nographic \
+  -serial stdio \
+  -monitor none \
+  -kernel build/kernel.elf
+```
 
-## 推荐的下一步
+## CLion notes
 
-比较合理的推进顺序是：
+For CLion, open the repository root as a CMake project and configure CMake with:
 
-1. 固化 trap 入口、异常打印与寄存器上下文处理
-2. 接入 timer interrupt，建立时钟源
-3. 整理 syscall 分发与 ABI 边界
-4. 建立页表初始化与最小内存管理框架
-5. 引入最小 task/thread 与调度框架
-6. 再推进用户态 `init` 与更完整系统调用集
+```text
+-DCMAKE_TOOLCHAIN_FILE=/absolute/path/to/qemu-riscv-embedded/cmake/riscv64-unknown-elf.cmake
+```
 
-如果只选一个最优先方向，建议先把：
+Do not use the RISC-V cross compiler directly as CLion's host toolchain compiler. Let CLion use its normal host environment and pass the cross-compilation setup through the CMake toolchain file.
 
-**trap / timer / syscall 这条最小内核基础设施链做扎实。**
+## Current status
 
-因为它直接决定后面调试效率，以及任务调度、用户态、异常恢复是否有可靠基础。
+The project currently has the following working baseline:
 
-## 设计原则
+- boot path from entry code into kernel main path
+- custom linker script integration
+- QEMU boot and UART output
+- early trap / exception path setup
+- minimal syscall path experiments
+- basic `sys_write` / `sys_exit` style validation
+- stable enough build flow for continued kernel iteration
 
-默认坚持以下原则：
+## Roadmap
 
-- 先单核，后多核
-- 先最小机制，后通用抽象
-- 先可调试，后高复杂度特性
-- 先打通关键路径，后做工程美化
-- 文档服务于实现，避免空泛描述
+Planned next steps include:
 
-一句话概括：
+- strengthen trap dispatch and context save/restore
+- add timer interrupt support
+- formalize syscall dispatch structure
+- introduce early page-table / memory-management foundations
+- build minimal task/thread scheduling support
+- gradually extend toward user-mode execution and broader driver support
 
-**先把内核做硬，再把工程做漂亮。**
+## Project structure
 
-## 仓库定位
+- `boot/` — early startup and assembly entry
+- `kernel/` — core kernel logic
+- `platform/` — platform-specific definitions and low-level support
+- `drivers/` — device drivers and future hardware abstractions
+- `user/` — user-mode or test payload experiments
+- `secure/` — reserved area for future secure-domain work
+- `tests/` — host-side or framework-side tests
+- `scripts/` — helper scripts
+- `docs/` — design and development notes
+- `tools/` — auxiliary tools
 
-这个仓库更像一个“从最小可运行内核逐步生长”的实验平台，而不是一份已经完成的成熟 OS 实现。它适合：
+## License
 
-- 逐步验证 RISC-V 内核关键机制
-- 沿着 trap / syscall / 内存管理 / 调度链路持续演化
-- 通过文档和阶段性重构，让代码结构跟着能力增长
-
-如果后续继续推进，建议每完成一个里程碑，就同步更新：
-
-- `README.md`：对外说明当前能力边界
-- `开发手册.md`：对内说明最近开发优先级
-- `docs/` 下专题文档：解释关键设计选择
+Add a project license here if and when you decide to publish one.
