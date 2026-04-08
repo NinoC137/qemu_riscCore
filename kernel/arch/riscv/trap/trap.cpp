@@ -1,6 +1,7 @@
 #include <trap.h>
 
 #include <drivers/uart/uart.h>
+#include <kernel/time/timer.h>
 #include <platform/qemu/devices/timer/clint_timer.h>
 #include <kernel/arch/riscv/trap/trap_logic.h>
 #include <platform/riscv.h>
@@ -65,8 +66,9 @@ extern "C" void trap_handle(trap::TrapFrame* tf) {
 
         if(code == static_cast<uintptr_t>(riscv::InterruptCode::MachineTimer)){
             g_uart0.puts("catch a timer interrupt\n");
-            g_uart0.puts("current timer count: "); g_uart0.put_dec(ClintTimer::read_mtime()); g_uart0.putc('\n');
-            ClintTimer::schedule_after(10000000ULL);
+            
+            KernelTimer::on_interrupt();
+
             return;
         }
 

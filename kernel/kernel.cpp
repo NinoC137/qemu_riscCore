@@ -1,8 +1,9 @@
 #include <stdint.h>
 #include <kernel/arch/riscv/trap/trap.h>
+#include <kernel/time/timer.h>
 
 #include <platform/riscv.h>
-#include <platform/qemu/devices/timer/clint_timer.h>
+
 #include <drivers/uart/uart.h>
 
 static inline long do_syscall_write(long fd, const char* buf, long len)
@@ -47,14 +48,11 @@ extern "C" void kmain(void) {
     //trap tests
     trap::init();
 
-    //init global interrupt
-    riscv::set_mie_bits(1ull << 7); // MTIE
-    riscv::set_mstatus_bits(1ull << 3); // MIE
+    g_uart0.puts("trap installed\n"); 
 
-    g_uart0.puts("trap installed\n");
+    g_cpu0timer.init(10000000ULL);
 
-    ClintTimer::schedule_after(10000000ULL);
-    
+    g_uart0.puts("current ticks count: "); g_uart0.put_dec(g_cpu0timer.ticks()); g_uart0.putc('\n');
 
     // g_uart0.puts("before ebreak\n");
     // asm volatile(".4byte 0x00100073");
