@@ -1,12 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-set(CMAKE_C_COMPILER riscv64-unknown-elf-gcc)
-set(CMAKE_CXX_COMPILER riscv64-unknown-elf-g++)
-set(CMAKE_ASM_COMPILER riscv64-unknown-elf-gcc)
-
 project(qemu_riscv_embedded LANGUAGES C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -18,8 +11,18 @@ set(CMAKE_C_STANDARD_LIBRARIES "")
 set(CMAKE_CXX_STANDARD_LIBRARIES "")
 set(CMAKE_EXE_LINKER_FLAGS "")
 
-set(CMAKE_OBJDUMP riscv64-unknown-elf-objdump)
-set(CMAKE_SIZE riscv64-unknown-elf-size)
+if(NOT CMAKE_CROSSCOMPILING)
+    message(WARNING "This project is intended to be configured with the RISC-V toolchain file. Example: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cmake/riscv64-unknown-elf.cmake")
+endif()
+
+if(NOT DEFINED CMAKE_OBJDUMP)
+    set(CMAKE_OBJDUMP riscv64-unknown-elf-objdump)
+endif()
+
+if(NOT DEFINED CMAKE_SIZE)
+    set(CMAKE_SIZE riscv64-unknown-elf-size)
+endif()
+
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/scripts/linker.ld)
 
 set(KERNEL_SOURCE_DIRS
