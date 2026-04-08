@@ -18,6 +18,20 @@ static inline long do_syscall_write(long fd, const char* buf, long len)
     return a0;
 }
 
+static inline long do_syscall_exit(){
+    register long a0 asm("a0") = 137;
+    register long a7 asm("a7") = 2;
+
+    asm volatile(
+        "ecall"
+        : "+r"(a0)
+        : "r"(a7)
+        : "memory");
+        
+    g_uart0.puts("after ecall\n");
+    return 0;
+}
+
 extern "C" void kmain(void) {
     g_uart0.init();
 
@@ -40,16 +54,8 @@ extern "C" void kmain(void) {
     const char msg[] = "System Write: hello from syscall\n";
     long ret = do_syscall_write(1, msg, sizeof(msg) - 1);
 
-    register long a0 asm("a0") = 137;
-    register long a7 asm("a7") = 2;
-
-    asm volatile(
-        "ecall"
-            : "+r"(a0)
-            : "r"(a7)
-            : "memory");
-
-    g_uart0.puts("after ecall\n");
+    g_uart0.puts("illegal instruction test\n");
+    asm volatile(".word 0xffffffff");
 
     for (;;) {
         asm volatile("wfi");

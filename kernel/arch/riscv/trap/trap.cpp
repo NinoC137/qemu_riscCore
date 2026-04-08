@@ -84,7 +84,6 @@ extern "C" void trap_handle(trap::TrapFrame* tf) {
     }
 
     if(code == static_cast<uintptr_t>(riscv::ExceptionCode::IllegalInstruction)){
-        
         g_uart0.puts("Excpetion: Illegal instruction\n");
     }
 
