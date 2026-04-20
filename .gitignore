@@ -1,5 +1,4 @@
-build
+.vscode
 .idea
-.DS_STORE
-.DS_Store
-tests/build-host
+build
+tests/build*
