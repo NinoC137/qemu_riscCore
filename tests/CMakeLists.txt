@@ -37,7 +37,17 @@ target_include_directories(queue_unit_tests PRIVATE
     ${CMAKE_SOURCE_DIR}
 )
 
+add_executable(bitmap_unit_tests
+    ds/bitmap_unit_tests.cpp
+    ../kernel/lib/ds/bitmap.cpp
+)
+
+target_include_directories(bitmap_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
+)
+
 enable_testing()
 add_test(NAME trap_unit_tests COMMAND trap_unit_tests)
 add_test(NAME list_unit_tests COMMAND list_unit_tests)
 add_test(NAME queue_unit_tests COMMAND queue_unit_tests)
+add_test(NAME bitmap_unit_tests COMMAND bitmap_unit_tests)

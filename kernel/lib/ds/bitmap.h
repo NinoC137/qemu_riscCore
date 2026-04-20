@@ -16,8 +16,8 @@ public:
     bool test(size_t bit) const noexcept;
 
 private:
-    uint64_t* m_words;
-    size_t m_bit_count;
+    uint64_t* m_words;  // map数组总大小
+    size_t m_bit_count; // bit资源数
 };
 
 } // namespace kernel::ds
