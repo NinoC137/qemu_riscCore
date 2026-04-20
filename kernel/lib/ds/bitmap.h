@@ -14,6 +14,7 @@ public:
     void set(size_t bit) noexcept;
     void clear(size_t bit) noexcept;
     bool test(size_t bit) const noexcept;
+    ptrdiff_t find_first_zero() const noexcept;
 
 private:
     uint64_t* m_words;  // map数组总大小

@@ -61,4 +61,35 @@ bool Bitmap::test(size_t bit) const noexcept {
     return (m_words[word_index] & mask) != 0;
 }
 
+ptrdiff_t Bitmap::find_first_zero() const noexcept
+{
+    const size_t word_count = word_count_for_bits(m_bit_count);
+
+    for(size_t index = 0; index < word_count; ++index) {
+        uint64_t word = m_words[index];
+
+        // 尾部有效位掩码，防止将位数不够的word中的bit位错判为有效的0
+        if(index == word_count - 1 && (m_bit_count % kBitsPerWord) != 0) {
+            const size_t valid_bits = m_bit_count % kBitsPerWord;
+            const uint64_t valid_mask = (1ULL << valid_bits) - 1ULL;
+            word |= ~valid_mask;
+        }
+
+        if(word == ~0ULL) {
+            continue;
+        }
+
+        const uint64_t inverted = ~word;
+        const size_t bit_offset = static_cast<size_t>(__builtin_ctzll(inverted));
+        const size_t global_bit = index * kBitsPerWord + bit_offset;
+        if(global_bit < m_bit_count) {
+            return static_cast<ptrdiff_t>(global_bit);
+        }
+    }
+
+    // bit位全部占用时返回-1
+    return -1;
+}
+
+
 } // namespace kernel::ds
