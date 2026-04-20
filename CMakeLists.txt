@@ -97,5 +97,6 @@ add_custom_command(TARGET kernel.elf POST_BUILD
 
 option(BUILD_HOST_TESTS "Build host-side unit tests" OFF)
 if(BUILD_HOST_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif()

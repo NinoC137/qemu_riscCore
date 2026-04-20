@@ -21,7 +21,8 @@ public:
     void remove(ListNode* node) noexcept;
 
 private:
-    ListNode m_head {};
+    // 哨兵节点，上述链表操作过程不涉及内存操作
+    ListNode m_head;
 };
 
 } // namespace kernel::ds

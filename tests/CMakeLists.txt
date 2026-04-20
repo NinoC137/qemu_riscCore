@@ -15,8 +15,18 @@ add_executable(trap_unit_tests
 )
 
 target_include_directories(trap_unit_tests PRIVATE
-    ${CMAKE_SOURCE_DIR}/..
+    ${CMAKE_SOURCE_DIR}
+)
+
+add_executable(list_unit_tests
+    ds/list_unit_tests.cpp
+    ../kernel/lib/ds/list.cpp
+)
+
+target_include_directories(list_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
 )
 
 enable_testing()
 add_test(NAME trap_unit_tests COMMAND trap_unit_tests)
+add_test(NAME list_unit_tests COMMAND list_unit_tests)
