@@ -2,3 +2,4 @@
 .idea
 build
 tests/build*
+.DS_Store
