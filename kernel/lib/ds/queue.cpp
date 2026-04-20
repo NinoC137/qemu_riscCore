@@ -7,8 +7,7 @@ void Queue::init() noexcept {
 }
 
 bool Queue::empty() const noexcept {
-    if(m_list.empty()) return true;
-    else return false;
+    return m_list.empty();
 }
 
 void Queue::push(ListNode* node) noexcept {
@@ -17,7 +16,7 @@ void Queue::push(ListNode* node) noexcept {
 
 ListNode* Queue::pop() noexcept {
     if(m_list.empty()) return nullptr;
-    m_list.pop_front();
+    return m_list.pop_front();
 }
 
 } // namespace kernel::ds

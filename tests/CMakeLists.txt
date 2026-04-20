@@ -27,6 +27,17 @@ target_include_directories(list_unit_tests PRIVATE
     ${CMAKE_SOURCE_DIR}
 )
 
+add_executable(queue_unit_tests
+    ds/queue_unit_tests.cpp
+    ../kernel/lib/ds/list.cpp
+    ../kernel/lib/ds/queue.cpp
+)
+
+target_include_directories(queue_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
+)
+
 enable_testing()
 add_test(NAME trap_unit_tests COMMAND trap_unit_tests)
 add_test(NAME list_unit_tests COMMAND list_unit_tests)
+add_test(NAME queue_unit_tests COMMAND queue_unit_tests)
