@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include <kernel/lib/ds/bitmap.h>
 
 namespace {
@@ -21,13 +19,23 @@ size_t bit_offset_for_bit(size_t bit) noexcept
     return bit % kBitsPerWord;
 }
 
+size_t first_set_bit_offset(uint64_t word) noexcept
+{
+    for (size_t bit = 0; bit < kBitsPerWord; ++bit) {
+        if ((word & (1ULL << bit)) != 0) {
+            return bit;
+        }
+    }
+
+    return kBitsPerWord;
+}
+
 } // namespace
 
 namespace kernel::ds {
 
 Bitmap::Bitmap(uint64_t* words, size_t bit_count) noexcept
     : m_words(words), m_bit_count(bit_count) {
-    assert(m_words != nullptr);
 }
 
 void Bitmap::clear_all() noexcept {
@@ -38,7 +46,10 @@ void Bitmap::clear_all() noexcept {
 }
 
 void Bitmap::set(size_t bit) noexcept {
-    assert(bit < m_bit_count);
+    if(bit >= m_bit_count) {
+        return;
+    }
+
     const size_t word_index = word_index_for_bit(bit);
     const size_t bit_offset = bit_offset_for_bit(bit);
     const uint64_t mask = 1ULL << bit_offset;
@@ -46,7 +57,9 @@ void Bitmap::set(size_t bit) noexcept {
 }
 
 void Bitmap::clear(size_t bit) noexcept {
-    assert(bit < m_bit_count);
+    if(bit >= m_bit_count) {
+        return;
+    }
     const size_t word_index = word_index_for_bit(bit);
     const size_t bit_offset = bit_offset_for_bit(bit);
     const uint64_t mask = 1ULL << bit_offset;
@@ -54,7 +67,9 @@ void Bitmap::clear(size_t bit) noexcept {
 }
 
 bool Bitmap::test(size_t bit) const noexcept {
-    assert(bit < m_bit_count);
+    if(bit >= m_bit_count) {
+        return false;
+    }
     const size_t word_index = word_index_for_bit(bit);
     const size_t bit_offset = bit_offset_for_bit(bit);
     const uint64_t mask = 1ULL << bit_offset;
@@ -80,7 +95,11 @@ ptrdiff_t Bitmap::find_first_zero() const noexcept
         }
 
         const uint64_t inverted = ~word;
-        const size_t bit_offset = static_cast<size_t>(__builtin_ctzll(inverted));
+        const size_t bit_offset = first_set_bit_offset(inverted);
+        if (bit_offset == kBitsPerWord) {
+            continue;
+        }
+
         const size_t global_bit = index * kBitsPerWord + bit_offset;
         if(global_bit < m_bit_count) {
             return static_cast<ptrdiff_t>(global_bit);

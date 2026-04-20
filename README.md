@@ -58,6 +58,7 @@ Run the generated kernel with QEMU:
 qemu-system-riscv64 \
   -machine virt \
   -bios none \
+  -serial stdio \
   -kernel build/kernel.elf
 ```
 

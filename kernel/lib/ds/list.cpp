@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <kernel/lib/ds/list.h>
 
 namespace kernel::ds {
@@ -19,7 +18,9 @@ bool List::empty() const noexcept {
 
 void List::push_front(ListNode* node) noexcept
 {
-    assert(node != nullptr);
+    if(node == nullptr) {
+        return;
+    }
     node->prev = &m_head;
     node->next = m_head.next;
     m_head.next->prev = node;
@@ -27,7 +28,9 @@ void List::push_front(ListNode* node) noexcept
 }
 
 void List::push_back(ListNode* node) noexcept {
-    assert(node != nullptr);
+    if(node == nullptr) {
+        return;
+    }
     node->next = &m_head;
     node->prev = m_head.prev;
     m_head.prev->next = node;

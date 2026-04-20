@@ -1,17 +1,34 @@
+#include <iterator>
+#include <run_queue.h>
+#include <switch.h>
 #include <kernel/core/sched/scheduler.h>
 
 namespace kernel::sched {
 
 void Scheduler::init() noexcept {
-    // TODO: initialize run queue, current task state, and scheduler policy state
+    // initialize run queue, current task state, and scheduler policy state
+    RunQueue::init();
 }
 
 void Scheduler::start() noexcept {
-    // TODO: start first runnable task; should not return in final design
+    // start first runnable task; should not return in final design
+    task::Task* next = RunQueue::next();
+    if (next == nullptr) {
+        for(;;) {}
+    }
+
+    RunQueue::set_current(next);
+    next->state = task::State::Running;
+
+    task::Context boot_ctx{};
+    task::context_switch(&boot_ctx, &next->context);
+
+    for(;;) {}
 }
 
 void Scheduler::yield() noexcept {
-    // TODO: voluntarily yield current task and trigger reschedule
+    // voluntarily yield current task and trigger reschedule
+    reschedule();
 }
 
 void Scheduler::on_tick() noexcept {
@@ -20,6 +37,22 @@ void Scheduler::on_tick() noexcept {
 
 void Scheduler::reschedule() noexcept {
     // TODO: switch from current task to next runnable task
+    task::Task* prev = RunQueue::current();
+    task::Task* next = RunQueue::next();
+
+    if(next == nullptr || prev == nullptr) {
+        return;
+    }
+
+    if(prev != nullptr && prev->state == task::State::Running) {
+        prev->state = task::State::Ready;
+        RunQueue::push(prev);
+    }
+
+    next->state = task::State::Running;
+    RunQueue::set_current(next);
+
+    context_switch(&prev->context, &next->context);
 }
 
 } // namespace kernel::sched

@@ -5,19 +5,21 @@
 
 #include <kernel/core/task/task.h>
 #include <kernel/lib/ds/queue.h>
+#include <kernel/lib/ds/intrusive.h>
 
 namespace kernel::sched {
 
 class RunQueue final {
 public:
     static void init() noexcept;
-    static bool push(kernel::task::Task* task) noexcept;
-    static kernel::task::Task* current() noexcept;
-    static kernel::task::Task* next() noexcept;
+    static bool push(task::Task* task) noexcept;
+    static task::Task* current() noexcept;
+    static bool set_current(task::Task* task) noexcept;
+    static task::Task* next() noexcept;
 
 private:
-    static inline kernel::task::Task* s_current = nullptr;
-    static inline kernel::ds::Queue s_ready_queue {};
+    static inline task::Task* s_current = nullptr;
+    static inline ds::Queue s_ready_queue {};
 };
 
 } // namespace kernel::sched

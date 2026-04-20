@@ -5,8 +5,18 @@
 #include <cstdint>
 
 #include <kernel/core/task/task.h>
+#include <kernel/core/task/switch.h>
 
 namespace kernel::task {
+
+// 简单的静态任务表
+namespace
+{
+    constexpr size_t kMaxTasks = 32;
+    alignas(16) static Task s_tasks[kMaxTasks];
+    static Task* s_idle_task;
+    static TaskId s_next_id = 1;
+}
 
 class TaskManager final {
 public:
