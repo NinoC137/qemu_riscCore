@@ -22,7 +22,7 @@ public:
 
 private:
     // 哨兵节点，上述链表操作过程不涉及内存操作
-    ListNode m_head;
+    ListNode m_head {};
 };
 
 } // namespace kernel::ds

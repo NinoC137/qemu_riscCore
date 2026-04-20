@@ -3,22 +3,21 @@
 namespace kernel::ds {
 
 void Queue::init() noexcept {
-    // TODO: initialize underlying intrusive list container
+    m_list.init();
 }
 
 bool Queue::empty() const noexcept {
-    // TODO: forward to underlying list empty state
-    return true;
+    if(m_list.empty()) return true;
+    else return false;
 }
 
 void Queue::push(ListNode* node) noexcept {
-    // TODO: enqueue node at logical tail
-    (void)node;
+    m_list.push_back(node);
 }
 
 ListNode* Queue::pop() noexcept {
-    // TODO: dequeue node from logical head, return nullptr if empty
-    return nullptr;
+    if(m_list.empty()) return nullptr;
+    m_list.pop_front();
 }
 
 } // namespace kernel::ds

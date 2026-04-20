@@ -37,16 +37,14 @@ void List::push_back(ListNode* node) noexcept {
 ListNode* List::pop_front() noexcept {
     if(List::empty()) return nullptr;
     ListNode* node_tmp = m_head.next;
-    m_head.next = node_tmp->next;
-    node_tmp->next->prev = &m_head;
+    List::remove(node_tmp);
     return node_tmp;
 }
 
 ListNode* List::pop_back() noexcept {
     if(List::empty()) return nullptr;
     ListNode* node_tmp = m_head.prev;
-    node_tmp->prev->next = &m_head;
-    m_head.prev = node_tmp->prev;
+    List::remove(node_tmp);
     return node_tmp;
 }
 
