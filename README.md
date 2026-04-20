@@ -73,6 +73,14 @@ qemu-system-riscv64 \
   -kernel build/kernel.elf
 ```
 
+## Unit tests
+
+```sh
+cmake -S . -B /tmp/qemu-riscv-embedded-build-host -DBUILD_HOST_TESTS=ON && cmake --build /tmp/qemu-riscv-embedded-build-host --target list_unit_tests trap_unit_tests
+
+ctest --test-dir /tmp/qemu-riscv-embedded-build-host --output-on-failure
+```
+
 ## CLion notes
 
 For CLion, open the repository root as a CMake project and configure CMake with:
@@ -83,28 +91,7 @@ For CLion, open the repository root as a CMake project and configure CMake with:
 
 Do not use the RISC-V cross compiler directly as CLion's host toolchain compiler. Let CLion use its normal host environment and pass the cross-compilation setup through the CMake toolchain file.
 
-## Current status
 
-The project currently has the following working baseline:
-
-- boot path from entry code into kernel main path
-- custom linker script integration
-- QEMU boot and UART output
-- early trap / exception path setup
-- minimal syscall path experiments
-- basic `sys_write` / `sys_exit` style validation
-- stable enough build flow for continued kernel iteration
-
-## Roadmap
-
-Planned next steps include:
-
-- strengthen trap dispatch and context save/restore
-- add timer interrupt support
-- formalize syscall dispatch structure
-- introduce early page-table / memory-management foundations
-- build minimal task/thread scheduling support
-- gradually extend toward user-mode execution and broader driver support
 
 ## Project structure
 
@@ -118,7 +105,3 @@ Planned next steps include:
 - `scripts/` — helper scripts
 - `docs/` — design and development notes
 - `tools/` — auxiliary tools
-
-## License
-
-Add a project license here if and when you decide to publish one.
