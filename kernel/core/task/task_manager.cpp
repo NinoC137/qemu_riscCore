@@ -1,11 +1,21 @@
 #include <scheduler.h>
+#include <syscall.h>
 #include <kernel/core/task/task_manager.h>
 
 namespace kernel::task {
 
+static uint8_t s_idle_stack[256];
+static void idle_task_entry() {
+    for(;;) {
+        asm volatile("wfi");
+    }
+}
+
 void TaskManager::init() noexcept {
     // TODO: initialize task table, task id allocator, and idle task metadata
     s_next_id = 1;
+
+    s_idle_task = create_kernel_task(idle_task_entry, s_idle_stack, sizeof(s_idle_stack));
 
     for(auto & s_task : s_tasks) {
         s_task.state = State::Empty;
@@ -67,9 +77,10 @@ Task* TaskManager::create_kernel_task(Entry entry, void* stack_base, size_t stac
     return task;
 }
 
+
 Task* TaskManager::idle_task() noexcept {
-    // TODO: return idle task pointer once idle task creation exists
-    return nullptr;
+    if(s_idle_task != nullptr) return s_idle_task;
+    else return nullptr;
 }
 
 } // namespace kernel::task

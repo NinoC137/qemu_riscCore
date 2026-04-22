@@ -14,7 +14,7 @@ namespace
 {
     constexpr size_t kMaxTasks = 32;
     alignas(16) static Task s_tasks[kMaxTasks];
-    static Task* s_idle_task;
+    static Task* s_idle_task = nullptr;
     static TaskId s_next_id = 1;
 }
 

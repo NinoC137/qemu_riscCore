@@ -1,6 +1,7 @@
 #include <iterator>
 #include <run_queue.h>
 #include <switch.h>
+#include <task_manager.h>
 #include <kernel/core/sched/scheduler.h>
 
 namespace kernel::sched {
@@ -14,7 +15,7 @@ void Scheduler::start() noexcept {
     // start first runnable task; should not return in final design
     task::Task* next = RunQueue::next();
     if (next == nullptr) {
-        for(;;) {}
+        next = task::TaskManager::idle_task();
     }
 
     RunQueue::set_current(next);
@@ -40,11 +41,15 @@ void Scheduler::reschedule() noexcept {
     task::Task* prev = RunQueue::current();
     task::Task* next = RunQueue::next();
 
+    if (next == nullptr) {
+        next = task::TaskManager::idle_task();
+    }
+
     if(next == nullptr || prev == nullptr) {
         return;
     }
 
-    if(prev != nullptr && prev->state == task::State::Running) {
+    if(prev != nullptr && prev != task::TaskManager::idle_task() &&prev->state == task::State::Running) {
         prev->state = task::State::Ready;
         RunQueue::push(prev);
     }

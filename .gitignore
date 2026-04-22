@@ -3,3 +3,4 @@
 build
 tests/build*
 .DS_Store
+**/.DS_Store
