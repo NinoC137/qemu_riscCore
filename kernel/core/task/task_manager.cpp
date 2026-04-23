@@ -9,7 +9,9 @@ static uint8_t s_idle_stack[256];
 static void idle_task_entry() {
     g_uart0.puts("enter idle task\n");
     for(;;) {
+        g_uart0.puts("idle task\n");
         asm volatile("wfi");
+        sched::Scheduler::reschedule();
     }
 }
 

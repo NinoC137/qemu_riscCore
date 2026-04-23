@@ -17,15 +17,38 @@ namespace
 }
 
 void task_A() {
+    g_uart0.puts("task A init.\n");
     for(;;) {
         g_uart0.puts("Hello from task_A\n");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
         kernel::sched::Scheduler::yield();
     }
 }
 
 void task_B() {
+    g_uart0.puts("task B init.\n");
     for(;;) {
         g_uart0.puts("Hello from task_B\n");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
+        asm volatile("wfi");
         kernel::sched::Scheduler::yield();
     }
 }
@@ -46,12 +69,15 @@ extern "C" void kmain(void) {
     kernel::init::bootstrap_scheduler();
 
     g_uart0.puts("Task manager and scheduler inited\n");
-    // auto* task_a_tcb = kernel::task::TaskManager::create_kernel_task(task_A, g_task_A_stack, sizeof(g_task_A_stack));
-    // auto* task_b_tcb = kernel::task::TaskManager::create_kernel_task(task_B, g_task_B_stack, sizeof(g_task_B_stack));
+    auto* task_a_tcb = kernel::task::TaskManager::create_kernel_task(task_A, g_task_A_stack, sizeof(g_task_A_stack));
+    auto* task_b_tcb = kernel::task::TaskManager::create_kernel_task(task_B, g_task_B_stack, sizeof(g_task_B_stack));
     g_uart0.puts("Creating task A&B\n");
 
-    // kernel::sched::RunQueue::push(task_a_tcb);
-    // kernel::sched::RunQueue::push(task_b_tcb);
+    kernel::sched::RunQueue::push(task_a_tcb);
+    kernel::sched::RunQueue::push(task_b_tcb);
+
+    g_uart0.puts("Start scheduler\n");
+    kernel::sched::Scheduler::start();
 
     for (;;) {
         asm volatile("wfi");

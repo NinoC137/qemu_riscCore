@@ -19,10 +19,8 @@ void bootstrap_scheduler() noexcept {
     task::TaskManager::init();
     sched::Scheduler::init();
 
-    g_uart0.puts("Start scheduler\n");
-    sched::Scheduler::start();
 
-    for(;;) {}
+    // for(;;) {}
 }
 
 } // namespace kernel::init
