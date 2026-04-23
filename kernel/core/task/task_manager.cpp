@@ -11,7 +11,7 @@ static void idle_task_entry() {
     for(;;) {
         g_uart0.puts("idle task\n");
         asm volatile("wfi");
-        sched::Scheduler::reschedule();
+        // sched::Scheduler::reschedule();
     }
 }
 

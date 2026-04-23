@@ -19,37 +19,22 @@ namespace
 void task_A() {
     g_uart0.puts("task A init.\n");
     for(;;) {
-        g_uart0.puts("Hello from task_A\n");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        kernel::sched::Scheduler::yield();
+        for(int i = 0 ; i < 5 ; i++) {
+            g_uart0.puts("Hello from task_A\n");
+            kernel::sched::Scheduler::yield();
+        }
+        syscall::sys_exit(233);
     }
 }
 
 void task_B() {
     g_uart0.puts("task B init.\n");
     for(;;) {
-        g_uart0.puts("Hello from task_B\n");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        asm volatile("wfi");
-        kernel::sched::Scheduler::yield();
+        for(int i = 0 ; i < 5 ; i++) {
+            g_uart0.puts("Hello from task_B\n");
+            kernel::sched::Scheduler::yield();
+        }
+        syscall::sys_exit(137);
     }
 }
 
