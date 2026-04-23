@@ -1,11 +1,13 @@
 #include <scheduler.h>
 #include <syscall.h>
+#include <uart.h>
 #include <kernel/core/task/task_manager.h>
 
 namespace kernel::task {
 
 static uint8_t s_idle_stack[256];
 static void idle_task_entry() {
+    g_uart0.puts("enter idle task\n");
     for(;;) {
         asm volatile("wfi");
     }
@@ -15,14 +17,14 @@ void TaskManager::init() noexcept {
     // TODO: initialize task table, task id allocator, and idle task metadata
     s_next_id = 1;
 
-    s_idle_task = create_kernel_task(idle_task_entry, s_idle_stack, sizeof(s_idle_stack));
-
     for(auto & s_task : s_tasks) {
         s_task.state = State::Empty;
         s_task.stack_base = nullptr;
         s_task.stack_size = 0;
         s_task.entry = nullptr;
     }
+
+    s_idle_task = create_kernel_task(idle_task_entry, s_idle_stack, sizeof(s_idle_stack));
 }
 
 Task* TaskManager::create_kernel_task(Entry entry, void* stack_base, size_t stack_size) noexcept {
