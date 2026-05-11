@@ -34,7 +34,7 @@ uint8_t UART::read_reg(Reg r) const noexcept {
 }
 
 void UART::wait_tx_ready() const noexcept {
-    while(read_reg(Reg::LSR) & kLsrThrEmpty == 0){
+    while((read_reg(Reg::LSR) & kLsrThrEmpty) == 0){
 
     }
 }

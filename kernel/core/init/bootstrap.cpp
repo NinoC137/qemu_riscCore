@@ -1,7 +1,7 @@
-#include <scheduler.h>
+#include <drivers/uart/uart.h>
+#include <kernel/arch/riscv/syscall/syscall.h>
 #include <kernel/core/init/bootstrap.h>
-#include <syscall.h>
-#include <uart.h>
+#include <kernel/core/sched/scheduler.h>
 
 namespace kernel::init {
 

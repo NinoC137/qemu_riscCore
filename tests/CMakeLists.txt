@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(trap_unit_tests
     trap/trap_unit_tests.cpp
     host_stubs/uart_stub.cpp
+    host_stubs/scheduler_stub.cpp
     ../kernel/arch/riscv/syscall/syscall.cpp
     ../kernel/arch/riscv/syscall/sys_write.cpp
     ../kernel/arch/riscv/syscall/sys_exit.cpp

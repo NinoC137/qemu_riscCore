@@ -1,8 +1,8 @@
-#include <scheduler.h>
 #include <kernel/arch/riscv/syscall/syscall.h>
 
 #include <drivers/uart/uart.h>
 #include <kernel/core/sched/run_queue.h>
+#include <kernel/core/sched/scheduler.h>
 
 extern const UART g_uart0;
 

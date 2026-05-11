@@ -1,18 +1,26 @@
-#include <scheduler.h>
-#include <syscall.h>
-#include <uart.h>
+#include <drivers/uart/uart.h>
+#include <kernel/arch/riscv/syscall/syscall.h>
+#include <kernel/core/sched/scheduler.h>
 #include <kernel/core/task/task_manager.h>
+#include <kernel/core/task/switch.h>
 
 namespace kernel::task {
 
-static uint8_t s_idle_stack[256];
-static void idle_task_entry() {
+namespace {
+constexpr size_t kMaxTasks = 32;
+alignas(16) Task s_tasks[kMaxTasks];
+Task* s_idle_task = nullptr;
+TaskId s_next_id = 1;
+uint8_t s_idle_stack[256];
+
+void idle_task_entry() {
     g_uart0.puts("enter idle task\n");
     for(;;) {
         g_uart0.puts("idle task\n");
         asm volatile("wfi");
         // sched::Scheduler::reschedule();
     }
+}
 }
 
 void TaskManager::init() noexcept {
