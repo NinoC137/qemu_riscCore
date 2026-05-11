@@ -10,7 +10,7 @@ namespace {
 constexpr size_t kMaxTasks = 32;
 alignas(16) Task s_tasks[kMaxTasks];
 Task* s_idle_task = nullptr;
-TaskId s_next_id = 1;
+TaskId s_next_id;
 uint8_t s_idle_stack[256];
 
 void idle_task_entry() {
