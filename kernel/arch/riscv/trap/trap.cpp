@@ -31,6 +31,12 @@ namespace trap
             return "store/amo access fault";
         case E::EcallFromMMode:
             return "ecall from M-mode";
+        case E::InstructionPageFault:
+            return "instruction page fault";
+        case E::LoadPageFault:
+            return "load page fault";
+        case E::StoreAmoPageFault:
+            return "store/amo page fault";
         default:
             return "unknown exception";
         }
@@ -95,6 +101,33 @@ extern "C" void trap_handle(trap::TrapFrame* tf) {
 
     if(code == static_cast<uintptr_t>(riscv::ExceptionCode::IllegalInstruction)){
         g_uart0.puts("Excpetion: Illegal instruction\n");
+    }
+
+    if(code == static_cast<uintptr_t>(riscv::ExceptionCode::InstructionPageFault)) {
+        g_uart0.puts("\n=== Instruction Page Fault ===\n");
+        g_uart0.puts("mcause = "); g_uart0.put_hex(tf->mcause); g_uart0.putc('\n');
+        g_uart0.puts("mepc = "); g_uart0.put_hex(tf->mepc); g_uart0.putc('\n');
+        g_uart0.puts("mtval = "); g_uart0.put_hex(tf->mtval); g_uart0.putc('\n');
+        g_uart0.puts("mstatus = "); g_uart0.put_hex(tf->mstatus); g_uart0.putc('\n');
+        g_uart0.puts("hart = "); g_uart0.put_dec(tf->mhartid); g_uart0.putc('\n');
+    }
+
+    if(code == static_cast<uintptr_t>(riscv::ExceptionCode::LoadPageFault)) {
+        g_uart0.puts("\n=== Load Page Fault ===\n");
+        g_uart0.puts("mcause = "); g_uart0.put_hex(tf->mcause); g_uart0.putc('\n');
+        g_uart0.puts("mepc = "); g_uart0.put_hex(tf->mepc); g_uart0.putc('\n');
+        g_uart0.puts("mtval = "); g_uart0.put_hex(tf->mtval); g_uart0.putc('\n');
+        g_uart0.puts("mstatus = "); g_uart0.put_hex(tf->mstatus); g_uart0.putc('\n');
+        g_uart0.puts("hart = "); g_uart0.put_dec(tf->mhartid); g_uart0.putc('\n');
+    }
+
+    if(code == static_cast<uintptr_t>(riscv::ExceptionCode::StoreAmoPageFault)) {
+        g_uart0.puts("\n=== Store/Amo Page Fault ===\n");
+        g_uart0.puts("mcause = "); g_uart0.put_hex(tf->mcause); g_uart0.putc('\n');
+        g_uart0.puts("mepc = "); g_uart0.put_hex(tf->mepc); g_uart0.putc('\n');
+        g_uart0.puts("mtval = "); g_uart0.put_hex(tf->mtval); g_uart0.putc('\n');
+        g_uart0.puts("mstatus = "); g_uart0.put_hex(tf->mstatus); g_uart0.putc('\n');
+        g_uart0.puts("hart = "); g_uart0.put_dec(tf->mhartid); g_uart0.putc('\n');
     }
 
     for(;;){
