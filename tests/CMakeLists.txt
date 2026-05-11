@@ -47,8 +47,47 @@ target_include_directories(bitmap_unit_tests PRIVATE
     ${CMAKE_SOURCE_DIR}
 )
 
+add_executable(page_unit_tests
+    mm/page_unit_tests.cpp
+)
+
+target_include_directories(page_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
+)
+
+add_executable(pmm_unit_tests
+    mm/pmm_unit_tests.cpp
+    ../kernel/mm/pmm.cpp
+)
+
+target_include_directories(pmm_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
+)
+
+add_executable(sv39_unit_tests
+    mm/sv39_unit_tests.cpp
+)
+
+target_include_directories(sv39_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
+)
+
+add_executable(page_table_unit_tests
+    mm/page_table_unit_tests.cpp
+    ../kernel/arch/riscv/mm/page_table.cpp
+    host_stubs/pmm_stub.cpp
+)
+
+target_include_directories(page_table_unit_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}
+)
+
 enable_testing()
 add_test(NAME trap_unit_tests COMMAND trap_unit_tests)
 add_test(NAME list_unit_tests COMMAND list_unit_tests)
 add_test(NAME queue_unit_tests COMMAND queue_unit_tests)
 add_test(NAME bitmap_unit_tests COMMAND bitmap_unit_tests)
+add_test(NAME page_unit_tests COMMAND page_unit_tests)
+add_test(NAME pmm_unit_tests COMMAND pmm_unit_tests)
+add_test(NAME sv39_unit_tests COMMAND sv39_unit_tests)
+add_test(NAME page_table_unit_tests COMMAND page_table_unit_tests)

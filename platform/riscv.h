@@ -12,6 +12,20 @@ namespace riscv
 
     using reg_t = uintptr_t;
 
+    inline reg_t read_satp() noexcept {
+        reg_t value;
+        asm volatile("csrr %0, satp" : "=r"(value));
+        return value;
+    }
+
+    inline void write_satp(reg_t value) noexcept {
+        asm volatile("csrw satp, %0" :: "r"(value) : "memory");
+    }
+
+    inline void sfence_vma() noexcept {
+        asm volatile("sfence.vma" ::: "memory");
+    }
+
     inline reg_t read_mcause() noexcept
     {
         reg_t value;

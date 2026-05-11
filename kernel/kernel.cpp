@@ -3,6 +3,8 @@
 #include <syscall.h>
 #include <bootstrap.h>
 #include <kernel/arch/riscv/trap/trap.h>
+#include <kernel/mm/pmm.h>
+#include <kernel/mm/kernel_address_space.h>
 #include <kernel/time/timer.h>
 #include <kernel/core/task/task_manager.h>
 
@@ -40,9 +42,16 @@ void task_B() {
 
 extern "C" void kmain(void) {
     g_uart0.init();
+    g_uart0.puts("uart ok\n");
 
-    //trap tests
-    trap::init();
+    kernel::mm::pmm_init();
+    g_uart0.puts("pmm ok\n");
+
+    kernel::mm::kernel_address_space_init();
+    g_uart0.puts("kernel page table ok\n");
+
+    kernel::arch::riscv::mm::enable_sv39(kernel::mm::kernel_page_table());
+    g_uart0.puts("paging enabled\n");
 
     g_uart0.puts("trap installed\n"); 
 
